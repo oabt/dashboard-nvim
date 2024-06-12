@@ -108,7 +108,7 @@ local function generate_center(config)
   col = col and col - 1 or 9999
   api.nvim_win_set_cursor(config.winid, { first_line + 1, col })
 
-  local bottom = api.nvim_buf_line_count(config.bufnr)
+  local bottom = api.nvim_buf_line_count(config.bufnr) + 1
   vim.defer_fn(function()
     local before = 0
     if api.nvim_get_current_buf() ~= config.bufnr then
@@ -118,15 +118,15 @@ local function generate_center(config)
       buffer = config.bufnr,
       callback = function()
         local buf = api.nvim_win_get_buf(0)
-        if vim.api.nvim_buf_get_option(buf, 'filetype') ~= 'dashboard' then
+        if vim.api.nvim_get_option_value('filetype', {buf=buf}) ~= 'dashboard' then
           return
         end
 
         local curline = api.nvim_win_get_cursor(0)[1]
         if curline < first_line + 1 then
-          curline = bottom - 1
-        elseif curline > bottom - 1 then
           curline = first_line + 1
+        elseif curline > bottom - 1 then
+          curline = bottom - 1
         elseif not api.nvim_get_current_line():find('%w') then
           curline = curline + (before > curline and -1 or 1)
         end
