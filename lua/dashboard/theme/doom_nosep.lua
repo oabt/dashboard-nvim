@@ -144,7 +144,8 @@ local function generate_center(config)
     })
   end, 0)
 
-  keymap.set('n', config.confirm_key or '<CR>', function()
+  -- @oabt: wrap entry confirm in an funciton
+  local function entry_confirm()
     local curline = api.nvim_win_get_cursor(0)[1]
     local index = pos_map[curline - first_line]
     if index and config.center[index].action then
@@ -161,7 +162,13 @@ local function generate_center(config)
         print('Error with action, check your config')
       end
     end
-  end, { buffer = config.bufnr, nowait = true, silent = true })
+  end
+  -- @oabt: set the keymap to call entry_confirm()
+  keymap.set('n', config.confirm_key or '<CR>', entry_confirm,
+      { buffer = config.bufnr, nowait = true, silent = true })
+  -- @oabt: also use the left-mouse double click as confirm
+  keymap.set('n', '<2-LeftMouse>', entry_confirm,
+      { buffer = config.bufnr, nowait = true, silent = true })
 end
 
 local function generate_footer(config)
